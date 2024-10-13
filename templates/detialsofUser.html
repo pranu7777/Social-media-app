@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .profile-container {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .user-info p {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .follow-btn {
+            margin-top: 10px;
+        }
+        .tweets-container {
+            margin-top: 30px;
+        }
+        .tweet-card {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="profile-container">
+            <h1 class="mb-4">User Profile: {{ user_data.username }}</h1>
+            <div class="user-info mb-4">
+                <p><strong>Email:</strong> {{ user_data.email }}</p>
+            </div>
+            {% if current_user_data.get('email') == user_data.email %}
+                <p>This is your profile.</p>
+            {% else %}
+                {% if user_data.username in (current_user_data.get('following_users') or []) %}
+                    <!-- Show unfollow button -->
+                    <form action="/unfollow" method="post" class="follow-btn">
+                        <input type="hidden" name="username" value="{{ user_data.username }}">
+                        <button type="submit" class="btn btn-danger">Unfollow</button>
+                    </form>
+                {% else %}
+                    <!-- Show follow button -->
+                    <form action="/follow" method="post" class="follow-btn">
+                        <input type="hidden" name="username" value="{{ user_data.username }}">
+                        <button type="submit" class="btn btn-primary">Follow</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div class="tweets-container">
+            <h2 class="mb-3">Last 10 Tweets:</h2>
+            <div class="tweets">
+                {% if tweets %}
+                    {% for tweet in tweets %}
+                        <div class="tweet-card card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ tweet.username }}</h5>
+                                <p class="card-text">{{ tweet.content }}</p>
+                                <p class="card-text"><small class="text-muted">{{ tweet.date }}</small></p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No tweets found for this user.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- Bootstrap JS (Optional) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

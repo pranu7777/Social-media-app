@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firestore basics</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+        #login-box {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h2 {
+            margin-top: 30px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+    </style>
+    <script type="module" src="{{ url_for('static', path='/firebase-login.js') }}"></script> 
+</head>
+<body> 
+    <div class="container">
+        <h1>Login to Tweeter</h1>
+        <div id="login-box">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" name="email" id="email">
+            <label for="password">Password:</label>
+            <input type="password" class="form-control" name="password" id="password">
+            <button id="login" class="btn btn-primary mt-3">Login</button>
+            <button id="sign-up" class="btn btn-secondary mt-3">Sign Up</button>
+        </div>
+
+        <button id="sign-out" class="btn btn-danger hidden">Sign out</button>
+        {% if user_token %}
+            <p>Welcome: {{ username }}</p>
+            <h2>Search Usernames</h2>
+            <form action="/" method="get">
+                <input type="text" class="form-control mb-3" name="search_query" placeholder="Enter username...">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </form>
+
+            <h2>Search Tweets</h2>
+            <form action="/search_tweets" method="get">
+                <input type="text" class="form-control mb-3" name="query" placeholder="Search tweets...">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </form>
+            
+            <h1>Add Tweet</h1>
+            <form action="/add_tweet" method="post" enctype="multipart/form-data">
+                <label for="content">Content:</label>
+                <textarea id="content" class="form-control mb-3" name="content" rows="4" cols="50"></textarea>
+                <label for="image">Image:</label>
+                <input type="file" class="form-control mb-3" id="image" name="image">
+                <button type="submit" class="btn btn-primary">Tweet</button>
+            </form>
+        {% endif %}
+
+        <!-- Display tweets -->
+        {% if user_token %}
+            <h2>Tweets</h2>
+            <ul class="list-group">
+                {% for tweet in tweets %}
+                <li class="list-group-item">
+                    <p><strong>Username:</strong> {{ tweet.username }}</p>
+                    <p><strong>Date:</strong> {{ tweet.date }}</p>
+                    <p><strong>Content:</strong> {{ tweet.content }}</p>
+                    {% if user_token and username == tweet.username %}
+                        <form action="/edit_tweet/{{ tweet.tweet_id }}" method="post">
+                            <label for="edit_content">Edit Content:</label>
+                            <textarea id="edit_content" class="form-control mb-3" name="edit_content" rows="4" cols="50">{{ tweet.content }}</textarea>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </form>
+                        <form action="/delete_tweet/{{ tweet.tweet_id }}" method="post">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</body>
+</html>
